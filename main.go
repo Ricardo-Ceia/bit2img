@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"io"
 	"log"
+	"io"
 	"os"
 	"sync"
 	"time"
@@ -11,6 +11,19 @@ import (
 
 // The size of each chunk to be read.
 const chunkSize = 1024 * 1024 // 1 MB
+
+
+func readImgFile(filePath string) []byte{
+	
+	imgBuffer,err := readFileMultiThread(filePath)
+	
+	if err != nil{
+		log.Fatal(err)
+	}
+
+ return imgBuffer
+}
+
 
 // readFileOneThread reads the entire file using a single I/O operation.
 // This is the simplest method but can be memory-intensive for very large files.
@@ -103,22 +116,9 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	// --- Single-threaded version ---
 	start := time.Now()
-	data1, err := readFileOneThread(filePath)
-	if err != nil {
-		log.Fatal(err)
-	}
+	imgBuffer := readImgFile(filePath)
 	elapsed := time.Since(start)
-	fmt.Printf("readFileOneThread read %d bytes in %s\n", len(data1), elapsed)
-
-	// --- Multi-threaded version ---
-	start = time.Now() // Reassign 'start' without ':='
-	data2, err := readFileMultiThread(filePath)
-	if err != nil {
-		log.Fatal(err)
-	}
-	elapsed = time.Since(start) // Reassign 'elapsed' without ':='
-	fmt.Printf("readFileMultiThread read %d bytes in %s\n", len(data2), elapsed)
+	log.Println("TIME PROCESSING THE IMAGE:%s",elapsed)
+	log.Println("IMAGE DATA:%s",imgBuffer)
 }
