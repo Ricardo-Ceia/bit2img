@@ -2,16 +2,41 @@ package img
 
 import (
 				"log"
-				"img2bit/fileOperations"
+				"image"
+				"image/color"
+				_ "image/jpeg"
+				"os"
 )
 
-func ReadImgFile(filePath string) []byte{
+func ReadImgFile(filePath string) image.Image{
 	
-	imgBuffer,err := fileOperations.ReadFileMultiThread(filePath)
+	file,err := os.Open(filePath)
 	
-	if err != nil{
+	defer file.Close()
+
+	if err!=nil{
 		log.Fatal(err)
 	}
 
- return imgBuffer
+	img,format,err := image.Decode(file)
+	log.Printf("Format of the image:%s",format)
+	if err!=nil{
+		log.Fatal(err)
+	}
+
+	return img
+}
+
+func ImageToGreyscale(img image.Image)  *image.Gray{
+	bounds := img.Bounds()
+	grayImg := image.NewGray(bounds)
+
+	for y := bounds.Min.Y;y < bounds.Max.Y;y++{
+		for x := bounds.Min.X; x < bounds.Max.X;x++{
+			originalColor := img.At(x,y)
+			grayColor := color.GrayModel.Convert(originalColor)
+			grayImg.Set(x,y,grayColor)
+		}
+	}
+	return grayImg
 }

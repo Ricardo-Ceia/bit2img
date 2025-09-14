@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"time"
 	"img2bit/img"
 )
 
@@ -16,9 +15,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	start := time.Now()
+
 	imgBuffer := img.ReadImgFile(filePath)
-	elapsed := time.Since(start)
-	log.Println("TIME PROCESSING THE IMAGE:%s",elapsed)
-	log.Println("IMAGE DATA:%s",imgBuffer)
+	imgGreyscale := img.ImageToGreyscale(imgBuffer)
+	log.Println("IMAGE DATA:%s",imgGreyscale)
 }
