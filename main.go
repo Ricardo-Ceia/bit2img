@@ -4,19 +4,53 @@ import (
 	"fmt"
 	"log"
 	"img2bit/img"
+	"image"
+	"image/color"
+	"image/jpeg"
+	tea "github.com/charmbracelet/bubbletea"
 )
 
 
-func main() {
-	var filePath string
-	fmt.Print("Please enter the path to your file relative to the current folder: ")
-	_, err := fmt.Scanln(&filePath)
+type Model struct{
+	Image *image.Gray
+	TerminalWidth int 
+	TerminalHeight int
+	CursorRow int
+	IsQuitting 	bool
+	Error error
+}
 
-	if err != nil {
+func NewModel(img *image.Gray,width,height) Model{
+	return Model{
+		Image: img,
+		TerminalWidth: width,
+		TerminalHeight:	height,
+		CursorRow:	0,
+		IsQuitting: false,
+		Error: nil,
+	}
+}
+
+func main() {
+	if len(os.Args < 2){
+		log.Fatal("Usage: go run main. go <iamge_path>")
+	}	
+
+	filePath := os.Args[1]
+
+	imgBuffer := img.ReadImgFile(filePath)
+
+	grayImg := img.ImageToGrey(imgBuffer)
+
+	width,height,err := term.GetSize(int(os.Strdin.Fd()))
+
+	if err != nil{
 		log.Fatal(err)
 	}
 
-	imgBuffer := img.ReadImgFile(filePath)
-	imgGreyscale := img.ImageToGreyscale(imgBuffer)
-	log.Println("IMAGE DATA:%s",imgGreyscale)
+	p := tea.NewProgram(NewModel(grayImg,width,height))
+
+	if _,err := p.Run(); err != nil{
+		log.Fatal("Error starting program: %v",err)
+	}
 }
